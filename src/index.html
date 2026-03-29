@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Mermaid Markdown Editor</title>
+    <link rel="stylesheet" href="../node_modules/highlight.js/styles/github.min.css" />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <header class="topbar">
+        <div class="brand">
+          <div class="logo">M</div>
+          <div class="titles">
+            <h1>Mermaid Markdown Editor</h1>
+            <p>Win32 Desktop</p>
+          </div>
+        </div>
+
+        <div class="toolbar">
+          <button id="btnExportSvg" class="btn">SVG</button>
+          <button id="btnExportPng" class="btn">PNG</button>
+          <button id="btnExportDocx" class="btn">DOCX</button>
+          <button id="btnExportVisio" class="btn accent">Visio</button>
+        </div>
+      </header>
+
+      <main class="workspace">
+        <section class="code-panel">
+          <div class="panel-head">
+            <div class="tabs">
+              <button class="tab active" data-tab="mermaid">Mermaid</button>
+              <button class="tab" data-tab="markdown">Markdown</button>
+            </div>
+            <label class="switch-label">
+              自动更新
+              <input type="checkbox" id="autoUpdateSwitch" checked />
+            </label>
+          </div>
+
+          <div class="editor-wrap">
+            <textarea id="mermaidEditor" spellcheck="false"></textarea>
+            <textarea id="markdownEditor" class="hidden" spellcheck="false"></textarea>
+          </div>
+        </section>
+
+        <section class="canvas-panel">
+          <div class="canvas-toolbar">
+            <button id="toggleManualLayout" class="icon-btn active">拖拽布局</button>
+            <button id="zoomOut" class="icon-btn">-</button>
+            <button id="zoomIn" class="icon-btn">+</button>
+            <button id="zoomReset" class="icon-btn">1:1</button>
+            <button id="toggleGrid" class="icon-btn">网格</button>
+          </div>
+
+          <div id="canvasViewport" class="canvas-viewport">
+            <div id="previewRoot" class="preview-root">
+              <div id="mermaidPreview" class="card preview-card"></div>
+              <article id="markdownPreview" class="card markdown-card"></article>
+            </div>
+          </div>
+
+          <div id="statusBar" class="status">就绪</div>
+        </section>
+      </main>
+    </div>
+
+    <div id="printDialog" class="dialog-shell hidden" aria-hidden="true">
+      <div class="dialog-backdrop" data-close-dialog="true"></div>
+      <section class="dialog-panel">
+        <header class="dialog-head">
+          <div>
+            <h2>打印预览</h2>
+            <p>选择打印机并预览当前内容</p>
+          </div>
+          <button id="btnClosePrintDialog" class="icon-btn">关闭</button>
+        </header>
+
+        <div class="dialog-toolbar">
+          <label class="field">
+            <span>打印机</span>
+            <select id="printerSelect"></select>
+          </label>
+          <label class="field">
+            <span>打印内容</span>
+            <select id="printContentSelect">
+              <option value="current">当前标签页</option>
+              <option value="mermaid">Mermaid 图</option>
+              <option value="markdown">Markdown 文档</option>
+            </select>
+          </label>
+          <button id="btnRefreshPreview" class="btn">刷新预览</button>
+          <button id="btnConfirmPrint" class="btn accent">打印</button>
+        </div>
+
+        <iframe id="printPreviewFrame" class="print-preview-frame" title="打印预览"></iframe>
+      </section>
+    </div>
+
+    <script src="../node_modules/mermaid/dist/mermaid.min.js"></script>
+    <script src="../node_modules/marked/marked.min.js"></script>
+    <script src="./renderer.js"></script>
+  </body>
+</html>
