@@ -28,8 +28,8 @@
 
 | 版本 | 说明 | 下载 |
 |------|------|------|
-| **安装版 (NSIS)** | 标准 Windows 安装程序，支持桌面快捷方式和开始菜单 | [Mermaid Markdown Editor-0.1.0-x64.exe](https://github.com/c932/Mermaid_Markdown_Editor/releases/download/v0.1.0/Mermaid%20Markdown%20Editor-0.1.0-x64.exe) |
-| **便携版 (Portable)** | 单文件免安装，即开即用 | [Mermaid Markdown Editor-0.1.0-portable.exe](https://github.com/c932/Mermaid_Markdown_Editor/releases/download/v0.1.0/Mermaid%20Markdown%20Editor-0.1.0-portable.exe) |
+| **安装版 (NSIS)** | 标准 Windows 安装程序，支持桌面快捷方式和开始菜单 | [Mermaid.Markdown.Editor-0.1.0-x64.exe](https://github.com/c932/Mermaid_Markdown_Editor/releases/download/v0.1.0/Mermaid.Markdown.Editor-0.1.0-x64.exe) |
+| **便携版 (Portable)** | 单文件免安装，即开即用 | [Mermaid.Markdown.Editor-0.1.0-portable.exe](https://github.com/c932/Mermaid_Markdown_Editor/releases/download/v0.1.0/Mermaid.Markdown.Editor-0.1.0-portable.exe) |
 
 > 首次安装后，可通过 `文件 → 关联文件格式` 将 `.md` / `.mmd` / `.json` 等格式关联到本编辑器。
 
