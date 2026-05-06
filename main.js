@@ -59,6 +59,11 @@ function buildAppMenu() {
         },
         { type: 'separator' },
         {
+          label: '关联文件格式...',
+          click: () => mainWindow?.webContents.send('menu:file-associations')
+        },
+        { type: 'separator' },
+        {
           label: '退出',
           accelerator: 'Alt+F4',
           role: 'quit'
@@ -157,6 +162,10 @@ function createMainWindow() {
   });
 
   mainWindow.loadFile(path.join(__dirname, 'src', 'index.html'));
+  // 默认不打开 DevTools；开发时可用 `set MME_DEVTOOLS=1 && npm start` 显式启用。
+  if (process.env.MME_DEVTOOLS === '1') {
+    mainWindow.webContents.openDevTools({ mode: 'detach' });
+  }
 }
 
 async function saveTextFile(defaultPath, content, filters) {
@@ -482,12 +491,119 @@ ipcMain.handle('settings:set', async (_event, payload) => {
   return { ok: true };
 });
 
+// ------- 文件关联：读写 HKCU\Software\Classes -------
+
+const SUPPORTED_ASSOC_EXTS = ['.md', '.markdown', '.mmd', '.mermaid', '.json'];
+const ASSOC_PROGID_MAP = {
+  '.md': 'MermaidMarkdownEditor.Markdown',
+  '.markdown': 'MermaidMarkdownEditor.Markdown',
+  '.mmd': 'MermaidMarkdownEditor.Mermaid',
+  '.mermaid': 'MermaidMarkdownEditor.Mermaid',
+  '.json': 'MermaidMarkdownEditor.Project'
+};
+const ASSOC_DESC_MAP = {
+  '.md': 'Markdown 文档 (Mermaid Markdown Editor)',
+  '.markdown': 'Markdown 文档 (Mermaid Markdown Editor)',
+  '.mmd': 'Mermaid 脚本 (Mermaid Markdown Editor)',
+  '.mermaid': 'Mermaid 脚本 (Mermaid Markdown Editor)',
+  '.json': 'Mermaid Editor Project (Mermaid Markdown Editor)'
+};
+
+function getAppExecutablePath() {
+  // 打包态：app.getPath('exe') 就是用户看到的 exe
+  // 开发态：指向 electron.exe，不适合写注册表；仍返回它仅用于调试
+  return process.execPath;
+}
+
+function runReg(args) {
+  return new Promise((resolve) => {
+    const { spawn } = require('child_process');
+    const p = spawn('reg.exe', args, { windowsHide: true });
+    let stderr = '';
+    p.stderr.on('data', (c) => { stderr += c.toString(); });
+    p.on('close', (code) => resolve({ code, stderr }));
+    p.on('error', () => resolve({ code: -1, stderr: 'spawn failed' }));
+  });
+}
+
+async function regQueryExists(keyPath) {
+  const r = await runReg(['query', keyPath]);
+  return r.code === 0;
+}
+
+async function regAssocSet(extension) {
+  const exe = getAppExecutablePath();
+  const progId = ASSOC_PROGID_MAP[extension];
+  const desc = ASSOC_DESC_MAP[extension];
+  if (!progId) return false;
+
+  // 1) ProgID 根
+  await runReg(['add', `HKCU\\Software\\Classes\\${progId}`, '/ve', '/d', desc, '/f']);
+  // 2) 图标
+  await runReg(['add', `HKCU\\Software\\Classes\\${progId}\\DefaultIcon`, '/ve', '/d', `"${exe}",0`, '/f']);
+  // 3) 打开命令
+  await runReg(['add', `HKCU\\Software\\Classes\\${progId}\\shell\\open\\command`, '/ve', '/d', `"${exe}" "%1"`, '/f']);
+  // 4) 友好名称（OpenWith 列表显示用）
+  await runReg(['add', `HKCU\\Software\\Classes\\${progId}\\shell\\open`, '/v', 'FriendlyAppName', '/d', 'Mermaid Markdown Editor', '/f']);
+  // 5) 扩展名 → ProgID（OpenWithProgids）
+  await runReg(['add', `HKCU\\Software\\Classes\\${extension}\\OpenWithProgids`, '/v', progId, '/t', 'REG_SZ', '/d', '', '/f']);
+  return true;
+}
+
+async function regAssocUnset(extension) {
+  const progId = ASSOC_PROGID_MAP[extension];
+  if (!progId) return false;
+  // 只删 OpenWithProgids 中这一条，不动整个扩展
+  await runReg(['delete', `HKCU\\Software\\Classes\\${extension}\\OpenWithProgids`, '/v', progId, '/f']);
+  // ProgID 整个删掉（同一 ProgID 可能被多个扩展引用，所以仅在无其它引用时再删）
+  // 简化：检查是否还有其他扩展指向同一 ProgID
+  const stillUsed = SUPPORTED_ASSOC_EXTS.some((ext) => ext !== extension && ASSOC_PROGID_MAP[ext] === progId);
+  if (!stillUsed) {
+    await runReg(['delete', `HKCU\\Software\\Classes\\${progId}`, '/f']);
+  }
+  return true;
+}
+
+ipcMain.handle('fileassoc:get', async () => {
+  const state = {};
+  for (const ext of SUPPORTED_ASSOC_EXTS) {
+    const progId = ASSOC_PROGID_MAP[ext];
+    state[ext] = await regQueryExists(`HKCU\\Software\\Classes\\${ext}\\OpenWithProgids\\${progId}`);
+  }
+  return { exts: SUPPORTED_ASSOC_EXTS, state, exe: getAppExecutablePath() };
+});
+
+ipcMain.handle('fileassoc:set', async (_event, selections) => {
+  // selections: { '.md': true, '.mmd': false, ... }
+  if (!selections || typeof selections !== 'object') return { ok: false, error: 'invalid selections' };
+  const results = {};
+  for (const ext of SUPPORTED_ASSOC_EXTS) {
+    try {
+      if (selections[ext]) {
+        await regAssocSet(ext);
+        results[ext] = 'on';
+      } else {
+        await regAssocUnset(ext);
+        results[ext] = 'off';
+      }
+    } catch (err) {
+      results[ext] = `error: ${err && err.message || err}`;
+    }
+  }
+  // 通知 shell 刷新（否则 Explorer 需要重启才生效）
+  try {
+    const { spawn } = require('child_process');
+    spawn('ie4uinit.exe', ['-show'], { windowsHide: true, detached: true }).unref();
+  } catch {}
+  return { ok: true, results };
+});
+
 ipcMain.handle('file:open', async () => {
   const result = await dialog.showOpenDialog(mainWindow, {
     title: 'Open Mermaid Markdown File',
     filters: [
+      { name: 'Markdown & Mermaid', extensions: ['md', 'markdown', 'mmd', 'mermaid', 'txt'] },
       { name: 'Mermaid Editor Project', extensions: ['json'] },
-      { name: 'Markdown & Mermaid', extensions: ['md', 'mmd', 'mermaid', 'txt'] },
       { name: 'All Files', extensions: ['*'] }
     ],
     properties: ['openFile']
@@ -516,6 +632,15 @@ ipcMain.handle('file:save-project', async (_event, payload) => {
   return saveTextFile('diagram.mme.json', JSON.stringify(data, null, 2), [
     { name: 'Mermaid Editor Project', extensions: ['json'] }
   ]);
+});
+
+ipcMain.handle('file:save-text', async (_event, payload) => {
+  const defaultName = (payload && payload.defaultName) || 'document.txt';
+  const content = (payload && payload.content) || '';
+  const filters = (payload && Array.isArray(payload.filters) && payload.filters.length)
+    ? payload.filters
+    : [{ name: 'All Files', extensions: ['*'] }];
+  return saveTextFile(defaultName, content, filters);
 });
 
 ipcMain.handle('export:svg', async (_event, svgText) => {
@@ -600,10 +725,77 @@ ipcMain.handle('export:visio', async (_event, svgText) => {
   }
 });
 
+const fsSync = require('fs');
+
+// 从命令行参数里寻找一个存在的文件路径（Windows 双击关联的文件会作为 argv 末尾）。
+// 忽略 electron.exe 本身、以 '-' 开头的 flag、以及不存在的路径。
+function getFilePathFromArgv(argv) {
+  if (!Array.isArray(argv)) return null;
+  // 打包后 argv[0] 是自身 exe；开发态 argv[0] 是 electron、argv[1] 是 '.'
+  const startIdx = app.isPackaged ? 1 : 2;
+  for (let i = startIdx; i < argv.length; i++) {
+    const a = argv[i];
+    if (!a || typeof a !== 'string') continue;
+    if (a.startsWith('-')) continue;
+    if (a === '.' || a === './') continue;
+    try {
+      if (fsSync.existsSync(a) && fsSync.statSync(a).isFile()) return path.resolve(a);
+    } catch { /* ignore */ }
+  }
+  return null;
+}
+
+// 等窗口就绪后把文件内容推送到 renderer
+function sendFileToRenderer(filePath) {
+  if (!filePath || !mainWindow) return;
+  const push = async () => {
+    try {
+      const content = await fs.readFile(filePath, 'utf-8');
+      mainWindow.webContents.send('file:open-external', {
+        filePath,
+        content,
+        extension: path.extname(filePath).toLowerCase()
+      });
+    } catch (err) {
+      console.warn('[file:open-external] failed to read', filePath, err);
+    }
+  };
+  if (mainWindow.webContents.isLoading()) {
+    mainWindow.webContents.once('did-finish-load', push);
+  } else {
+    push();
+  }
+}
+
+// 单实例锁：第二次启动（例如双击另一个 md）时把文件路径转给已运行实例
+const gotSingleInstanceLock = app.requestSingleInstanceLock();
+if (!gotSingleInstanceLock) {
+  app.quit();
+} else {
+  app.on('second-instance', (_event, argv) => {
+    if (mainWindow) {
+      if (mainWindow.isMinimized()) mainWindow.restore();
+      mainWindow.focus();
+    }
+    const fp = getFilePathFromArgv(argv);
+    if (fp) sendFileToRenderer(fp);
+  });
+}
+
+// macOS 的 open-file（双击文件关联）。Windows 走 argv 路径。
+app.on('open-file', (event, filePath) => {
+  event.preventDefault();
+  if (mainWindow) sendFileToRenderer(filePath);
+  else app.once('browser-window-created', () => sendFileToRenderer(filePath));
+});
+
 app.whenReady().then(async () => {
   await loadSettings();
   createMainWindow();
   buildAppMenu();
+  // 启动参数里若带文件，则窗口加载完成后自动打开
+  const initialPath = getFilePathFromArgv(process.argv);
+  if (initialPath) sendFileToRenderer(initialPath);
 });
 
 app.on('window-all-closed', () => {

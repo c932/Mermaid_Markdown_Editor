@@ -24,7 +24,16 @@
 - docx
 - PowerShell + Visio COM（用于 `.vsdx` 导出）
 
-## 快速开始
+## 下载安装
+
+| 版本 | 说明 | 下载 |
+|------|------|------|
+| **安装版 (NSIS)** | 标准 Windows 安装程序，支持桌面快捷方式和开始菜单 | [Mermaid Markdown Editor-0.1.0-x64.exe](https://github.com/c932/Mermaid_Markdown_Editor/releases/download/v0.1.0/Mermaid%20Markdown%20Editor-0.1.0-x64.exe) |
+| **便携版 (Portable)** | 单文件免安装，即开即用 | [Mermaid Markdown Editor-0.1.0-portable.exe](https://github.com/c932/Mermaid_Markdown_Editor/releases/download/v0.1.0/Mermaid%20Markdown%20Editor-0.1.0-portable.exe) |
+
+> 首次安装后，可通过 `文件 → 关联文件格式` 将 `.md` / `.mmd` / `.json` 等格式关联到本编辑器。
+
+## 快速开始（开发）
 
 1. 安装依赖
 
@@ -44,13 +53,9 @@ npm run start
 npm run pack:win-dir
 ```
 
-打包完成后，可执行文件位于：
-
-- `dist/win-unpacked/Mermaid Markdown Editor.exe`
-
 ## 文件菜单
 
-- `文件`：打开文件、保存工程、打印、退出
+- `文件`：打开文件、保存工程、打印、**关联文件格式**、退出
 - `导出`：导出 SVG、PNG、DOCX、Visio
 - `视图`：放大、缩小、重置缩放、切换网格、切换拖拽布局
 

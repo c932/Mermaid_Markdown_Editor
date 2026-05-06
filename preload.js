@@ -6,6 +6,7 @@ contextBridge.exposeInMainWorld('mmeApi', {
   setSettings: (payload) => ipcRenderer.invoke('settings:set', payload),
   openFile: () => ipcRenderer.invoke('file:open'),
   saveProject: (payload) => ipcRenderer.invoke('file:save-project', payload),
+  saveText: (payload) => ipcRenderer.invoke('file:save-text', payload),
   highlightCode: (code, language) => {
     const source = String(code || '');
     if (language && hljs.getLanguage(language)) {
@@ -24,10 +25,18 @@ contextBridge.exposeInMainWorld('mmeApi', {
       'menu:open', 'menu:save-project', 'menu:print',
       'menu:export-svg', 'menu:export-png', 'menu:export-docx', 'menu:export-visio',
       'menu:zoom-in', 'menu:zoom-out', 'menu:zoom-reset',
-      'menu:toggle-grid', 'menu:toggle-layout'
+      'menu:toggle-grid', 'menu:toggle-layout',
+      'menu:file-associations'
     ];
     if (validChannels.includes(channel)) {
       ipcRenderer.on(channel, () => callback());
     }
-  }
+  },
+  // 外部打开（文件关联双击、命令行参数、macOS open-file）
+  onFileOpen: (callback) => {
+    ipcRenderer.on('file:open-external', (_e, payload) => callback(payload));
+  },
+  // 文件关联管理
+  getFileAssociations: () => ipcRenderer.invoke('fileassoc:get'),
+  setFileAssociations: (selections) => ipcRenderer.invoke('fileassoc:set', selections)
 });

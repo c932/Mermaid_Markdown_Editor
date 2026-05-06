@@ -19,25 +19,116 @@
           </div>
         </div>
 
-        <div class="toolbar">
-          <button id="btnExportSvg" class="btn">SVG</button>
-          <button id="btnExportPng" class="btn">PNG</button>
-          <button id="btnExportDocx" class="btn">DOCX</button>
-          <button id="btnExportVisio" class="btn accent">Visio</button>
+        <div class="tabs tabs-top">
+          <button class="tab active" data-tab="mermaid">Mermaid</button>
+          <button class="tab" data-tab="markdown">Markdown</button>
         </div>
+
+        <label class="switch-label">
+          自动更新
+          <input type="checkbox" id="autoUpdateSwitch" checked />
+        </label>
+
+        <button id="btnHelp" class="icon-btn" title="查看帮助文档" style="margin-left:8px;">帮助</button>
       </header>
+
+      <nav class="action-toolbar" role="toolbar" aria-label="编辑工具栏">
+        <div class="tool-group">
+          <div class="dropdown">
+            <button class="tool-btn" id="btnAddMenu" title="新增">
+              <svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M8 3v10M3 8h10"/></svg>
+              <span>新增</span>
+              <svg class="caret" viewBox="0 0 10 10" width="10" height="10" fill="currentColor"><path d="M2 4l3 3 3-3z"/></svg>
+            </button>
+            <ul class="dropdown-menu" role="menu">
+              <li><button data-add="node"><svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="2.5" y="4.5" width="11" height="7" rx="1"/></svg>节点（文本框）</button></li>
+              <li><button data-add="edge"><svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M2 8h10"/><path d="M9 5l3 3-3 3"/></svg>连线</button></li>
+              <li><button data-add="subgraph"><svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-dasharray="2 1.5"><rect x="1.5" y="2.5" width="13" height="11" rx="1"/></svg>子图 / 分组</button></li>
+            </ul>
+          </div>
+
+          <button class="tool-btn" id="btnDelete" title="删除选中">
+            <svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M3.5 4.5h9M6 4.5V3.5a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v1M5 4.5l.5 8a1 1 0 0 0 1 .9h3a1 1 0 0 0 1-.9l.5-8"/></svg>
+            <span>删除</span>
+          </button>
+        </div>
+
+        <div class="tool-divider"></div>
+
+        <div class="tool-group">
+          <button class="tool-btn" id="btnCut" title="剪切 (Ctrl+X)">
+            <svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="4" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><path d="M5.5 10.5L13 3M10.5 10.5L3 3"/></svg>
+            <span>剪切</span>
+          </button>
+          <button class="tool-btn" id="btnCopy" title="复制 (Ctrl+C)">
+            <svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"><rect x="5" y="5" width="8" height="9" rx="1"/><path d="M3 11V3a1 1 0 0 1 1-1h7"/></svg>
+            <span>复制</span>
+          </button>
+          <button class="tool-btn" id="btnPaste" title="粘贴 (Ctrl+V)">
+            <svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"><rect x="3" y="3" width="10" height="11" rx="1"/><path d="M6 3v-.5A.5.5 0 0 1 6.5 2h3a.5.5 0 0 1 .5.5V3"/></svg>
+            <span>粘贴</span>
+          </button>
+        </div>
+
+        <div class="tool-divider"></div>
+
+        <div class="tool-group">
+          <button class="tool-btn" id="btnUndo" title="撤销 (Ctrl+Z)">
+            <svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7h7a3 3 0 0 1 0 6H6"/><path d="M6 4L3 7l3 3"/></svg>
+            <span>撤销</span>
+          </button>
+          <button class="tool-btn" id="btnRedo" title="重做 (Ctrl+Y)">
+            <svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M13 7H6a3 3 0 0 0 0 6h4"/><path d="M10 4l3 3-3 3"/></svg>
+            <span>重做</span>
+          </button>
+        </div>
+
+        <div class="tool-divider"></div>
+
+        <div class="tool-group">
+          <button class="tool-btn" id="btnSave" title="保存 (Ctrl+S)">
+            <svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"><path d="M3 3h8l2 2v8a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1z"/><path d="M5 3v3h5V3M5 14v-4h6v4"/></svg>
+            <span>保存</span>
+          </button>
+          <button class="tool-btn" id="btnSaveAs" title="另存为 (Ctrl+Shift+S)">
+            <svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"><path d="M3 3h6l2 2v8a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1z"/><path d="M12 8v5M9.5 10.5h5"/></svg>
+            <span>另存为</span>
+          </button>
+        </div>
+
+        <div class="tool-divider"></div>
+
+        <div class="tool-group">
+          <div class="dropdown">
+            <button class="tool-btn" id="btnExportMenu" title="导出">
+              <svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2v8"/><path d="M5 7l3 3 3-3"/><path d="M3 13h10"/></svg>
+              <span>导出</span>
+              <svg class="caret" viewBox="0 0 10 10" width="10" height="10" fill="currentColor"><path d="M2 4l3 3 3-3z"/></svg>
+            </button>
+            <ul class="dropdown-menu" role="menu">
+              <li><button data-export="svg">导出 SVG</button></li>
+              <li><button data-export="png">导出 PNG</button></li>
+              <li><button data-export="docx">导出 DOCX</button></li>
+              <li><button data-export="visio">导出 Visio</button></li>
+            </ul>
+          </div>
+
+          <button class="tool-btn" id="btnOpen" title="打开 (Ctrl+O)">
+            <svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"><path d="M2 5a1 1 0 0 1 1-1h3l2 2h5a1 1 0 0 1 1 1v5a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1z"/></svg>
+            <span>打开</span>
+          </button>
+
+          <button class="tool-btn" id="btnPrintEntry" title="打印 (Ctrl+P)">
+            <svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"><path d="M4 6V3h8v3M3 6h10a1 1 0 0 1 1 1v4a1 1 0 0 1-1 1h-1v2H4v-2H3a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1z"/></svg>
+            <span>打印</span>
+          </button>
+        </div>
+      </nav>
 
       <main class="workspace">
         <section class="code-panel">
           <div class="panel-head">
-            <div class="tabs">
-              <button class="tab active" data-tab="mermaid">Mermaid</button>
-              <button class="tab" data-tab="markdown">Markdown</button>
-            </div>
-            <label class="switch-label">
-              自动更新
-              <input type="checkbox" id="autoUpdateSwitch" checked />
-            </label>
+            <span class="panel-title" id="editorTitle">Mermaid 脚本</span>
           </div>
 
           <div class="editor-wrap">
@@ -46,25 +137,52 @@
           </div>
         </section>
 
+        <div id="workspaceSplitter" class="workspace-splitter" title="拖拽调整左右面板宽度"></div>
+
         <section class="canvas-panel">
           <div class="canvas-toolbar">
-            <button id="toggleManualLayout" class="icon-btn active">拖拽布局</button>
-            <button id="zoomOut" class="icon-btn">-</button>
-            <button id="zoomIn" class="icon-btn">+</button>
-            <button id="zoomReset" class="icon-btn">1:1</button>
-            <button id="toggleGrid" class="icon-btn">网格</button>
+            <span class="panel-title" id="previewTitle">Mermaid 预览</span>
+            <div class="canvas-toolbar-right">
+              <button id="toggleManualLayout" class="icon-btn active">拖拽布局</button>
+              <button id="btnAutoLayout" class="icon-btn" title="清除手动位置，由 Mermaid 重新自动排布并适配窗口">自动布局</button>
+              <button id="btnUndoLayout" class="icon-btn" title="恢复至上次自动布局之前的手动布局" disabled>撤销布局</button>
+              <button id="zoomOut" class="icon-btn">-</button>
+              <button id="zoomIn" class="icon-btn">+</button>
+              <button id="zoomReset" class="icon-btn">1:1</button>
+              <button id="toggleGrid" class="icon-btn">网格</button>
+            </div>
           </div>
 
           <div id="canvasViewport" class="canvas-viewport">
             <div id="previewRoot" class="preview-root">
               <div id="mermaidPreview" class="card preview-card"></div>
-              <article id="markdownPreview" class="card markdown-card"></article>
+              <article id="markdownPreview" class="card markdown-card hidden"></article>
             </div>
           </div>
 
           <div id="statusBar" class="status">就绪</div>
         </section>
       </main>
+    </div>
+
+    <!-- 自定义输入对话框（替代 window.prompt，Electron 默认禁用 prompt） -->
+    <div id="inputDialog" class="dialog-shell hidden" aria-hidden="true">
+      <div class="dialog-backdrop" data-cancel-input="true"></div>
+      <section class="dialog-panel input-dialog">
+        <header class="dialog-head">
+          <div>
+            <h2 id="inputDialogTitle">输入</h2>
+            <p id="inputDialogHint"></p>
+          </div>
+        </header>
+        <div class="dialog-body">
+          <div id="inputDialogFields"></div>
+        </div>
+        <footer class="dialog-foot">
+          <button id="inputDialogCancel" class="btn ghost">取消</button>
+          <button id="inputDialogOk" class="btn accent">确定</button>
+        </footer>
+      </section>
     </div>
 
     <div id="printDialog" class="dialog-shell hidden" aria-hidden="true">
@@ -99,8 +217,126 @@
       </section>
     </div>
 
-    <script src="../node_modules/mermaid/dist/mermaid.min.js"></script>
+    <!-- 通用右键上下文菜单 -->
+    <div id="contextMenu" class="context-menu hidden" role="menu"></div>
+
+    <!-- 帮助文档对话框 -->
+    <div id="helpDialog" class="dialog-shell hidden" aria-hidden="true">
+      <div class="dialog-backdrop" data-close-help="true"></div>
+      <section class="dialog-panel" style="width:min(860px,calc(100vw - 64px));height:min(720px,calc(100vh - 64px));">
+        <header class="dialog-head">
+          <div>
+            <h2>使用帮助</h2>
+            <p>Mermaid Markdown Editor 功能速查 & 快捷键</p>
+          </div>
+          <button id="btnCloseHelp" class="icon-btn">关闭</button>
+        </header>
+        <div class="dialog-body" style="overflow:auto;padding:18px 22px;line-height:1.7;font-size:13.5px;color:#223;">
+          <h3 style="margin-top:0;">1. 双模式编辑</h3>
+          <ul>
+            <li><b>Mermaid 模式</b>：左侧写 Mermaid 源码，右侧实时渲染流程图，可直接在预览上拖拽节点、右键新增/删除/复制。</li>
+            <li><b>Markdown 模式</b>：左侧写 Markdown，右侧预览（支持代码高亮与内嵌 Mermaid 代码块）。</li>
+            <li>顶栏切换 Tab；"自动更新"关闭后编辑不触发实时渲染，可用 Ctrl+S 手动刷新。</li>
+          </ul>
+
+          <h3>2. 画布操作</h3>
+          <ul>
+            <li><b>缩放</b>：工具栏 +/- / 1:1 按钮，或 Ctrl + 滚轮。</li>
+            <li><b>平移</b>：按住空白处拖动，或按住中键拖动。</li>
+            <li><b>网格</b>：切换背景网格辅助对齐。</li>
+            <li><b>拖拽布局</b>：开启后可自由拖动节点/子图到任意位置，位置在源码自动更新后仍保持（免重渲染）。</li>
+            <li><b>自动布局</b>：清除所有手动位置，由 Mermaid 重新自动排布。</li>
+            <li><b>撤销布局</b>：恢复至最近一次自动布局之前的手动布局。</li>
+          </ul>
+
+          <h3>3. 图形编辑（右键菜单）</h3>
+          <ul>
+            <li><b>空白处右键</b>：新增节点 / 连线 / 子图；粘贴。</li>
+            <li><b>节点右键</b>：编辑文本 / 改形状 / 设置 emoji / 复制 / 删除。</li>
+            <li><b>连线右键</b>：编辑文字 / 切换箭头类型 / 删除。</li>
+            <li><b>子图右键</b>：编辑标题 / 粘贴子图 / 删除子图（保留/移除内部节点可选）。</li>
+          </ul>
+
+          <h3>4. 导出</h3>
+          <ul>
+            <li><b>SVG / PNG</b>：导出当前画布的矢量/位图。</li>
+            <li><b>DOCX</b>：导出 Markdown 为 Word 文档（含图片）。</li>
+            <li><b>Visio（.vsdx）</b>：需要本机安装 Microsoft Visio（通过 COM 自动化转换 SVG）。</li>
+          </ul>
+
+          <h3>5. 快捷键</h3>
+          <table style="width:100%;border-collapse:collapse;">
+            <thead><tr style="background:#eef4f7;"><th style="text-align:left;padding:6px 10px;border:1px solid #dde6eb;">功能</th><th style="text-align:left;padding:6px 10px;border:1px solid #dde6eb;">Windows 快捷键</th></tr></thead>
+            <tbody style="font-family:Consolas,monospace;">
+              <tr><td style="padding:6px 10px;border:1px solid #dde6eb;">保存当前文件</td><td style="padding:6px 10px;border:1px solid #dde6eb;">Ctrl + S</td></tr>
+              <tr><td style="padding:6px 10px;border:1px solid #dde6eb;">打开文件</td><td style="padding:6px 10px;border:1px solid #dde6eb;">Ctrl + O</td></tr>
+              <tr><td style="padding:6px 10px;border:1px solid #dde6eb;">新建</td><td style="padding:6px 10px;border:1px solid #dde6eb;">Ctrl + N</td></tr>
+              <tr><td style="padding:6px 10px;border:1px solid #dde6eb;">复制选中节点/子图</td><td style="padding:6px 10px;border:1px solid #dde6eb;">Ctrl + C</td></tr>
+              <tr><td style="padding:6px 10px;border:1px solid #dde6eb;">粘贴</td><td style="padding:6px 10px;border:1px solid #dde6eb;">Ctrl + V</td></tr>
+              <tr><td style="padding:6px 10px;border:1px solid #dde6eb;">删除选中</td><td style="padding:6px 10px;border:1px solid #dde6eb;">Delete / Backspace</td></tr>
+              <tr><td style="padding:6px 10px;border:1px solid #dde6eb;">放大 / 缩小 / 还原</td><td style="padding:6px 10px;border:1px solid #dde6eb;">Ctrl + =  /  Ctrl + -  /  Ctrl + 0</td></tr>
+              <tr><td style="padding:6px 10px;border:1px solid #dde6eb;">切换网格</td><td style="padding:6px 10px;border:1px solid #dde6eb;">Ctrl + G</td></tr>
+              <tr><td style="padding:6px 10px;border:1px solid #dde6eb;">切换布局模式</td><td style="padding:6px 10px;border:1px solid #dde6eb;">Ctrl + L</td></tr>
+            </tbody>
+          </table>
+
+          <h3>6. 提示</h3>
+          <ul>
+            <li>默认不打开 DevTools；开发调试请用 <code>set MME_DEVTOOLS=1 &amp;&amp; npm start</code>。</li>
+            <li>Mermaid 渲染对齐 VSCode 插件 <code>bierner.markdown-mermaid</code>（Mermaid 11.14）。</li>
+            <li>单张图如需切换 ELK 布局，在源码头部加：<code>%%{init: {"layout": "elk"}}%%</code>。</li>
+          </ul>
+        </div>
+      </section>
+    </div>
+
+    <!-- Emoji 选择器 -->
+    <div id="emojiPicker" class="emoji-picker hidden" aria-hidden="true">
+      <div class="emoji-picker-header">
+        <div class="emoji-tabs" id="emojiTabs"></div>
+        <button class="emoji-close" id="emojiClose" title="关闭">×</button>
+      </div>
+      <div class="emoji-grid" id="emojiGrid"></div>
+    </div>
+
+    <!-- 文件关联对话框 -->
+    <div id="fileAssocDialog" class="dialog-shell hidden" aria-hidden="true">
+      <div class="dialog-backdrop" data-close-fa="true"></div>
+      <section class="dialog-panel" style="width:min(520px,calc(100vw - 64px));">
+        <header class="dialog-head">
+          <div>
+            <h2>关联文件格式</h2>
+            <p>勾选要让 Windows 使用 Mermaid Markdown Editor 打开的扩展名</p>
+          </div>
+          <button class="icon-btn" data-close-fa="true">关闭</button>
+        </header>
+        <div class="dialog-body" style="padding:18px 22px;font-size:13.5px;color:#223;">
+          <div id="faList" style="display:flex;flex-direction:column;gap:10px;">
+            <!-- 动态填充 -->
+          </div>
+          <div id="faExePath" style="margin-top:14px;padding:8px 10px;background:#f4f6f9;border-radius:8px;font-family:Consolas,monospace;font-size:12px;color:#556;word-break:break-all;"></div>
+          <p style="margin-top:10px;color:#667;font-size:12px;line-height:1.6;">
+            说明：关联写入当前用户级 <code>HKCU\Software\Classes</code>，不需要管理员权限，随时可取消。
+            保存后需要在资源管理器右键「打开方式 → 选择其他应用」里手动选一次 <b>Mermaid Markdown Editor</b> 才能成为默认。
+          </p>
+        </div>
+        <footer style="display:flex;justify-content:flex-end;gap:8px;padding:12px 22px;border-top:1px solid var(--border);">
+          <button class="icon-btn" data-close-fa="true">取消</button>
+          <button id="btnFaSave" class="primary-btn">保存</button>
+        </footer>
+      </section>
+    </div>
+
     <script src="../node_modules/marked/marked.min.js"></script>
-    <script src="./renderer.js"></script>
+    <script type="module" src="./mermaid-bootstrap.mjs"></script>
+    <script>
+      // mermaid bootstrap 完成后再加载 renderer.js，
+      // 因为 renderer.js 顶部立即读取 window.mermaid。
+      window.addEventListener('mermaid-ready', () => {
+        const s = document.createElement('script');
+        s.src = './renderer.js';
+        document.body.appendChild(s);
+      });
+    </script>
   </body>
 </html>

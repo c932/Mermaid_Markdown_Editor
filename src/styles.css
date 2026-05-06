@@ -34,9 +34,9 @@ body {
   width: 100%;
   height: 100%;
   display: grid;
-  grid-template-rows: 74px 1fr;
-  padding: 16px;
-  gap: 12px;
+  grid-template-rows: auto auto 1fr;
+  padding: 14px;
+  gap: 10px;
 }
 
 .topbar {
@@ -87,6 +87,193 @@ body {
   justify-content: flex-end;
 }
 
+.toolbar-divider {
+  display: inline-block;
+  width: 1px;
+  background: var(--border);
+  margin: 2px 2px;
+}
+
+/* ===== Action Toolbar (Office 风格) ===== */
+.action-toolbar {
+  background: rgba(255, 255, 255, 0.96);
+  /* 不要使用 backdrop-filter：它会创建独立的 stacking context，
+     导致下拉菜单（即使 position:fixed + z-index:9999）也无法突破
+     祖先层级被下方预览层遮住。 */
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 10px;
+  flex-wrap: wrap;
+  min-height: 44px;
+}
+
+.tool-group {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.tool-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  color: var(--text);
+  font-size: 12px;
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease;
+  white-space: nowrap;
+}
+
+.tool-btn svg {
+  flex-shrink: 0;
+}
+
+.tool-btn .caret {
+  opacity: 0.55;
+  margin-left: 2px;
+}
+
+.tool-btn:hover {
+  background: #eaf2f7;
+  border-color: var(--border);
+}
+
+.tool-btn:active {
+  background: #dbe7ef;
+}
+
+.tool-btn:disabled {
+  opacity: 0.42;
+  cursor: not-allowed;
+  background: transparent;
+  border-color: transparent;
+}
+
+.tool-btn.active {
+  background: var(--primary);
+  border-color: #0f6b93;
+  color: #fff;
+}
+
+.tool-divider {
+  width: 1px;
+  height: 22px;
+  background: var(--border);
+  margin: 0 4px;
+}
+
+.dropdown {
+  position: relative;
+  z-index: 5;
+  /* 用 inline-flex 紧贴 button，避免 flex 容器里 .dropdown 因 align-items
+     的隐式拉伸让 top:100% 下移到容器底部。 */
+  display: inline-flex;
+  align-items: center;
+}
+
+.dropdown.open {
+  z-index: 50;
+}
+
+.dropdown-menu {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  min-width: 170px;
+  list-style: none;
+  margin: 0;
+  padding: 6px;
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  box-shadow: 0 12px 28px rgba(12, 56, 80, 0.18);
+  z-index: 200;
+  display: none;
+  flex-direction: column;
+  max-height: none;
+  overflow: visible;
+}
+
+.dropdown.open .dropdown-menu {
+  display: flex;
+}
+
+.dropdown-menu li {
+  list-style: none;
+  display: block;
+  width: 100%;
+}
+
+.dropdown-menu button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 7px 10px;
+  background: transparent;
+  border: 0;
+  border-radius: 6px;
+  color: var(--text);
+  font-size: 13px;
+  text-align: left;
+  cursor: pointer;
+}
+
+.dropdown-menu button:hover {
+  background: #eaf2f7;
+}
+
+.preview-card svg.connect-mode g.node {
+  cursor: crosshair !important;
+}
+
+.preview-card svg .connect-candidate rect,
+.preview-card svg .connect-candidate polygon,
+.preview-card svg .connect-candidate circle,
+.preview-card svg .connect-candidate path {
+  stroke: #ca4d2f !important;
+  stroke-width: 2.4px !important;
+}
+
+/* 选中状态 */
+.preview-card svg g.node.selected rect,
+.preview-card svg g.node.selected polygon,
+.preview-card svg g.node.selected circle,
+.preview-card svg g.node.selected path,
+.preview-card svg g.cluster.selected rect,
+.preview-card svg g.cluster.selected polygon {
+  stroke: #1479a6 !important;
+  stroke-width: 2.6px !important;
+  filter: drop-shadow(0 0 6px rgba(20, 121, 166, 0.5));
+}
+
+.preview-card svg path.edge-selected {
+  stroke: #1479a6 !important;
+  stroke-width: 3px !important;
+  filter: drop-shadow(0 0 4px rgba(20, 121, 166, 0.5));
+}
+
+/* 子图 (subgraph) 右下角尺寸调整手柄 */
+.preview-card svg .cluster-resize-handle {
+  fill: #1479a6;
+  fill-opacity: 0.75;
+  stroke: #ffffff;
+  stroke-width: 1.5;
+  cursor: nwse-resize;
+  transition: fill-opacity 0.15s ease;
+}
+.preview-card svg .cluster-resize-handle:hover {
+  fill-opacity: 1;
+}
+
 .btn,
 .icon-btn {
   border: 1px solid var(--border);
@@ -124,8 +311,32 @@ body {
 .workspace {
   min-height: 0;
   display: grid;
-  grid-template-columns: minmax(380px, 40%) 1fr;
-  gap: 12px;
+  grid-template-columns: var(--code-panel-width, minmax(380px, 40%)) 6px 1fr;
+  gap: 0;
+}
+
+.workspace-splitter {
+  background: transparent;
+  cursor: col-resize;
+  position: relative;
+  user-select: none;
+  transition: background 0.15s ease;
+}
+.workspace-splitter::before {
+  content: '';
+  position: absolute;
+  top: 0; bottom: 0;
+  left: 50%;
+  width: 1px;
+  background: var(--border);
+  transform: translateX(-50%);
+}
+.workspace-splitter:hover,
+.workspace-splitter.dragging {
+  background: rgba(32, 117, 150, 0.18);
+}
+.workspace-splitter.dragging {
+  cursor: col-resize;
 }
 
 .code-panel,
@@ -150,6 +361,12 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: center;
+}
+
+.panel-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text);
 }
 
 .tabs {
@@ -212,9 +429,26 @@ textarea.hidden {
   display: flex;
   align-items: center;
   gap: 8px;
+  position: relative;
+  z-index: 10;
   padding: 10px 12px;
   border-bottom: 1px solid var(--border);
   background: var(--panel-soft);
+}
+
+.canvas-toolbar-right {
+  margin-left: auto;
+  display: flex;
+  gap: 6px;
+}
+
+.canvas-toolbar-right .icon-btn {
+  padding: 4px 10px;
+  font-size: 12px;
+}
+
+.card.hidden {
+  display: none !important;
 }
 
 .canvas-viewport {
@@ -309,6 +543,30 @@ textarea.hidden {
   background: transparent;
 }
 
+.markdown-card .md-mermaid-block {
+  margin: 14px 0;
+  padding: 12px;
+  background: #ffffff;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  text-align: center;
+  overflow: auto;
+}
+
+.markdown-card .md-mermaid-block svg {
+  max-width: 100%;
+  height: auto;
+}
+
+.markdown-card .md-mermaid-error {
+  color: #c0392b;
+  background: #fdecea;
+  border: 1px solid #f5c6cb;
+  padding: 10px 12px;
+  border-radius: 8px;
+  white-space: pre-wrap;
+}
+
 .markdown-card h1,
 .markdown-card h2,
 .markdown-card h3 {
@@ -378,6 +636,53 @@ textarea.hidden {
   flex-wrap: wrap;
 }
 
+/* ===== 自定义输入对话框 ===== */
+.input-dialog {
+  width: min(480px, calc(100vw - 48px));
+  height: auto;
+  grid-template-rows: auto 1fr auto;
+}
+
+.dialog-body {
+  padding: 16px 18px;
+  display: grid;
+  gap: 12px;
+  overflow: auto;
+}
+
+.dialog-body .field {
+  display: grid;
+  gap: 6px;
+  min-width: 0;
+}
+
+.dialog-body input[type="text"],
+.dialog-body textarea {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 8px 10px;
+  font-size: 13px;
+  font-family: inherit;
+  background: #fff;
+  outline: none;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.dialog-body input[type="text"]:focus,
+.dialog-body textarea:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 2px rgba(20, 121, 166, 0.15);
+}
+
+.dialog-foot {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  padding: 12px 18px;
+  border-top: 1px solid var(--border);
+  background: #f7fafc;
+}
+
 .field {
   display: grid;
   gap: 6px;
@@ -421,6 +726,10 @@ textarea.hidden {
     grid-template-rows: minmax(320px, 48%) 1fr;
   }
 
+  .workspace-splitter {
+    display: none;
+  }
+
   .topbar {
     align-items: flex-start;
     gap: 8px;
@@ -431,3 +740,114 @@ textarea.hidden {
     width: 100%;
   }
 }
+
+/* ===== 右键上下文菜单 ===== */
+.context-menu {
+  position: fixed;
+  z-index: 10000;
+  min-width: 180px;
+  background: #ffffff;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.18);
+  padding: 4px;
+  user-select: none;
+  font-size: 13px;
+  color: var(--text);
+}
+.context-menu.hidden { display: none; }
+.context-menu .cm-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  line-height: 1.5;
+  white-space: nowrap;
+}
+.context-menu .cm-item:hover:not(.disabled) { background: #eef5fb; }
+.context-menu .cm-item.disabled { opacity: 0.45; cursor: default; }
+.context-menu .cm-item .cm-icon {
+  width: 16px; height: 16px; display: inline-flex;
+  align-items: center; justify-content: center;
+  color: #4a6275;
+}
+.context-menu .cm-item.has-children::after {
+  content: '▸';
+  margin-left: auto;
+  font-size: 10px;
+  color: #88a;
+  padding-left: 10px;
+}
+.context-menu .cm-separator {
+  height: 1px;
+  background: var(--border);
+  margin: 4px 2px;
+}
+
+/* ===== Emoji 选择器 ===== */
+.emoji-picker {
+  position: fixed;
+  z-index: 10001;
+  width: 340px;
+  height: 360px;
+  background: #ffffff;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.22);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.emoji-picker.hidden { display: none; }
+.emoji-picker-header {
+  display: flex;
+  align-items: center;
+  border-bottom: 1px solid var(--border);
+  padding: 4px 6px;
+  gap: 4px;
+}
+.emoji-tabs {
+  display: flex;
+  gap: 2px;
+  flex: 1;
+  overflow-x: auto;
+}
+.emoji-tab {
+  padding: 4px 8px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 16px;
+  background: transparent;
+  border: none;
+}
+.emoji-tab.active { background: #e8f2fa; }
+.emoji-tab:hover { background: #f1f5fa; }
+.emoji-close {
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  font-size: 18px;
+  width: 26px; height: 26px;
+  border-radius: 6px;
+  color: #566;
+}
+.emoji-close:hover { background: #f0f4f8; }
+.emoji-grid {
+  flex: 1;
+  overflow-y: auto;
+  padding: 6px;
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  gap: 2px;
+}
+.emoji-item {
+  font-size: 20px;
+  text-align: center;
+  padding: 4px 0;
+  border-radius: 4px;
+  cursor: pointer;
+  user-select: none;
+}
+.emoji-item:hover { background: #eef5fb; }

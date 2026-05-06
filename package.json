@@ -8,17 +8,21 @@
   "scripts": {
     "start": "electron .",
     "dev": "electron .",
-    "pack:win-dir": "electron-builder --win --dir"
+    "pack:win-dir": "electron-builder --win --dir",
+    "dist:win": "electron-builder --win",
+    "dist:portable": "electron-builder --win portable"
   },
   "dependencies": {
+    "@mermaid-js/layout-elk": "^0.2.1",
     "docx": "^9.5.1",
     "highlight.js": "^11.11.1",
     "marked": "^14.1.2",
-    "mermaid": "^11.4.1"
+    "mermaid": "^11.14.0"
   },
   "devDependencies": {
     "electron": "^33.2.1",
-    "electron-builder": "^26.8.1"
+    "electron-builder": "^26.8.1",
+    "esbuild": "^0.28.0"
   },
   "build": {
     "appId": "com.mme.editor",
@@ -26,9 +30,33 @@
     "directories": {
       "output": "dist"
     },
+    "files": [
+      "main.js",
+      "preload.js",
+      "src/**/*",
+      "vendor/**/*",
+      "node_modules/**/*"
+    ],
     "win": {
-      "target": "dir",
-      "signAndEditExecutable": false
+      "target": [
+        { "target": "nsis", "arch": ["x64"] },
+        { "target": "portable", "arch": ["x64"] }
+      ],
+      "executableName": "Mermaid Markdown Editor",
+      "signAndEditExecutable": false,
+      "artifactName": "${productName}-${version}-${arch}.${ext}"
+    },
+    "afterPack": "./scripts/after-pack.js",
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "Mermaid Markdown Editor"
+    },
+    "portable": {
+      "artifactName": "${productName}-${version}-portable.${ext}"
     }
   }
 }
