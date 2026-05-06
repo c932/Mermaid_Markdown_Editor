@@ -11,6 +11,11 @@ permissions:
 jobs:
   build-windows:
     runs-on: windows-latest
+    env:
+      # 禁用代码签名，避免 winCodeSign 下载/解压问题
+      CSC_IDENTITY_AUTO_DISCOVERY: false
+      WIN_CSC_LINK: ''
+      WIN_CSC_KEY_PASSWORD: ''
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -18,14 +23,14 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '22'
           cache: 'npm'
 
       - name: Install dependencies
-        run: npm install
+        run: npm ci
 
       - name: Build Windows packages
-        run: npm run dist:win
+        run: npx electron-builder --win nsis portable --publish never
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4

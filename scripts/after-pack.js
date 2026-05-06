@@ -5,14 +5,19 @@ const path = require('path');
 const fs = require('fs');
 const { spawnSync } = require('child_process');
 
-const RCEDIT_PATH = path.join(
-  __dirname,
-  '..',
-  'node_modules',
-  'electron-winstaller',
-  'vendor',
-  'rcedit.exe'
-);
+function findRcedit() {
+  const candidates = [
+    path.join(__dirname, '..', 'node_modules', 'electron-winstaller', 'vendor', 'rcedit.exe'),
+    path.join(__dirname, '..', 'node_modules', 'app-builder-lib', 'vendor', 'rcedit.exe'),
+    path.join(__dirname, '..', 'node_modules', 'electron-builder', 'node_modules', 'app-builder-lib', 'vendor', 'rcedit.exe'),
+  ];
+  for (const p of candidates) {
+    if (fs.existsSync(p)) return p;
+  }
+  return null;
+}
+
+const RCEDIT_PATH = findRcedit();
 
 function runRcedit(exePath, fields) {
   const args = [exePath];
@@ -30,7 +35,7 @@ function runRcedit(exePath, fields) {
 
 module.exports = async function afterPack(context) {
   if (context.electronPlatformName !== 'win32') return;
-  if (!fs.existsSync(RCEDIT_PATH)) {
+  if (!RCEDIT_PATH || !fs.existsSync(RCEDIT_PATH)) {
     console.warn('[after-pack] rcedit.exe not found, skip');
     return;
   }
